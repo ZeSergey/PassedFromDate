@@ -6,27 +6,41 @@ import {
   View,
   Text,
   StatusBar,
+  Platform,
+  Button,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 const App = () => {
-  const [fromDate, setFromDate] = useState(new Date());
+  const [fromDate, setFromDate] = useState(
+    new Date(new Date().setDate(new Date().getDate() - 1)),
+  );
   const [toDate, setToDate] = useState(new Date());
 
-  const [show, setShow] = useState(true);
+  const OS = Platform.OS;
+
+  const [showFromDate, setFromShow] = useState(OS == 'ios');
+
+  const [showToDate, setToShow] = useState(OS == 'ios');
 
   const updateFromDate = (event, date) => {
+    if (OS != 'ios') {
+      setFromShow(false);
+    }
     setFromDate(date);
   };
 
   const updateToDate = (event, date) => {
+    if (OS != 'ios') {
+      setToShow(false);
+    }
     setToDate(date);
   };
 
   const calcDate = () => {
-    const dateNow = new Date().setHours(0);
-    const myDate = fromDate - dateNow;
-    return myDate;
+    // const res = toDate.setHours(0) - fromDate.setHours(0);
+    const res = toDate - fromDate;
+    return res;
   };
 
   return (
@@ -36,24 +50,44 @@ const App = () => {
         <ScrollView contentInsetAdjustmentBehavior="automatic">
           <View style={styles.body}>
             <View style={styles.sectionContainer}>
-              <Text>Start</Text>
-              <DateTimePicker
-                value={fromDate}
-                display="default"
-                onChange={updateFromDate}
-              />
+              {OS == 'ios' ? (
+                <Text>Change start date</Text>
+              ) : (
+                <Button
+                  title="Press me to start Date"
+                  color="#f194ff"
+                  onPress={() => setFromShow(true)}
+                />
+              )}
+              {showFromDate ? (
+                <DateTimePicker
+                  value={fromDate}
+                  display="default"
+                  onChange={updateFromDate}
+                />
+              ) : null}
             </View>
             <View style={styles.sectionContainer}>
-              <Text>To</Text>
-              <DateTimePicker
-                value={toDate}
-                display="default"
-                onChange={updateToDate}
-              />
+              {OS == 'ios' ? (
+                <Text>Change last date</Text>
+              ) : (
+                <Button
+                  title="Press me to finish Date"
+                  color="#ccc"
+                  onPress={() => setToShow(true)}
+                />
+              )}
+              {showToDate ? (
+                <DateTimePicker
+                  value={toDate}
+                  display="default"
+                  onChange={updateToDate}
+                />
+              ) : null}
             </View>
             <View style={styles.sectionContainer}>
               <Text>
-                this date is {Math.ceil(calcDate() / (1000 * 3600 * 24))}
+                this date is {Math.round(calcDate() / (1000 * 3600 * 24))}
               </Text>
             </View>
           </View>
